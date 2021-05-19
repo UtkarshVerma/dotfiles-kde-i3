@@ -1,0 +1,17 @@
+#!/bin/sh
+
+alias \
+	fixflicker="xrandr -s 1920x1080 -r 48; xrandr -s 1920x1080 -r 120" \
+	spotify="LD_PRELOAD=/usr/local/lib/ab.so spotify" \
+
+## Enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+	test -r ~/.dircolors && eval "$(dircolors -b ~.dircolors)" \
+	|| eval "$(dircolors -b)"
+
+    alias \
+	    ls="ls --color=auto" \
+	    grep="grep --color=auto" \
+	    fgrep="fgrep --color=auto" \
+	    egrep="egrep --color=auto"
+fi

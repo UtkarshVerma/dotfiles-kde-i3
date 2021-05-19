@@ -1,0 +1,16 @@
+[user]
+	email = utkarshverma@protonmail.com
+	name = Utkarsh Verma
+	signingkey = 611291C16E1D6F95
+[credential]
+	helper = store --file $HOME/.config/git/credentials
+[commit]
+	gpgsign = true
+[pull]
+	rebase = false
+[url "https://invent.kde.org/"]
+	insteadOf = kde:
+[url "ssh://git@invent.kde.org/"]
+	pushInsteadOf = kde:
+[gpg]
+	program = gpg

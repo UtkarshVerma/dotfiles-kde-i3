@@ -1,0 +1,290 @@
+#----------------------------------------------------------------------------------------------------
+# Under the hood
+#----------------------------------------------------------------------------------------------------
+# Define macros
+set $mod Mod4
+set $fileManager dolphin
+set $webBrowser firefox
+
+# Set floating modifier
+floating_modifier $mod
+
+# Move focus to urgent windows.
+focus_on_window_activation focus
+
+# Hide title bar for stacked/tabbed containers.
+font pango:MesloLGS NF 0
+
+# Window settings for applications
+for_window [class="Firefox" window_type="dialog"] move position center
+for_window [class="jetbrains-studio"] floating enable
+for_window [title="Android Emulator*"] floating enable
+
+# Title bar color according to KDE's Materia Dark theme.
+client.focused #4285f4 #4285f4 #fdf6e3 #859900
+
+# CPU Fan OSD stuff.
+no_focus [class="kded5"]
+
+# General dropdown window traits.
+for_window [instance="dropdown_.*"] floating enable, move scratchpad, sticky enable
+
+# Note-taking stuff.
+for_window [instance="popup-bottom-center"] floating enable, move position center, move down 400
+
+# Scribe testing
+for_window [instance="Scribe"] floating enable
+
+#----------------------------------------------------------------------------------------------------
+# Startup
+#----------------------------------------------------------------------------------------------------
+exec --no-startup-id feh --no-fehbg --bg-scale --randomize -r ~/Pictures/Wallpapers
+exec --no-startup-id latte-dock
+#exec --no-startup-id mpd
+#exec --no-startup-id mpDris2 --music-dir $HOME/Music
+#exec --no-startup-id mpdas -d
+exec --no-startup-id picom --config $XDG_CONFIG_HOME/picom.conf
+exec --no-startup-id safeeyes -e
+exec --no-startup-id telegram -startintray
+exec --no-startup-id unclutter
+
+#----------------------------------------------------------------------------------------------------
+# Key bindings for applications
+#----------------------------------------------------------------------------------------------------
+bindsym $mod+F1			exec --no-startup-id $webBrowser
+bindsym $mod+F2 		exec --no-startup-id $fileManager
+bindsym $mod+Return 	exec --no-startup-id i3-sensible-terminal
+bindsym $mod+d			exec --no-startup-id rofi -show run
+bindsym XF86Calculator	exec --no-startup-id "rofi -modi calc -show calc -lines 5 -no-show-icons \
+	-no-show-match -no-sort -calc-command \\"echo '{result}' | xclip -r -selection c\\" \
+	-theme-str \\"mode-switcher{enabled:false;}\\""
+bindsym $mod+n 			exec --no-startup-id ddspawn konsole -p 'TerminalColumns=100' -e joplin
+
+# Note-taking hotkeys
+bindsym $mod+Ctrl+a	exec --no-startup-id scribe show assignments
+bindsym $mod+Ctrl+c	exec --no-startup-id scribe show courses
+bindsym $mod+Ctrl+l exec --no-startup-id scribe show lectures
+bindsym $mod+Ctrl+r exec --no-startup-id scribe show reports
+bindsym $mod+Ctrl+v exec --no-startup-id scribe compile
+bindsym $mod+Ctrl+o exec --no-startup-id $fileManager `scribe show active-course`
+bindsym $mod+Ctrl+m exec --no-startup-id scribe show url meet && brave-browser \
+	--app=`scribe show url meet`
+
+# CPU fan mode indicator
+bindcode 248 exec --no-startup-id toggle-fan-mode
+
+# Mail hotkeys
+bindsym $mod+m exec --no-startup-id qdbus org.kde.kglobalaccel /component/lattedock \
+	invokeShortcut "activate widget 90"
+bindsym $mod+Shift+m exec --no-startup-id xdg-open https://mail.google.com
+
+#----------------------------------------------------------------------------------------------------
+# Plasma integration
+#----------------------------------------------------------------------------------------------------
+# Discard "plasmashell" completely since using "latte-dock"
+for_window [title="Desktop — Plasma"] move scratchpad, floating enable, kill
+for_window [class="plasmashell"]      floating enable
+for_window [class="lattedock"]        floating enable
+for_window [class="systemsettings"]   floating enable
+no_focus   [class="latte-dock" window_type="notification"]
+no_focus   [class="plasmashell"]
+
+# Screenshot
+set $outputFile Pictures/Screenshots/$(date +%Y%m%d_%T).jpg
+bindsym Print            exec --no-startup-id spectacle -bfo $outputFile
+bindsym $mod+Print       exec --no-startup-id spectacle -abo $outputFile
+bindsym $mod+Shift+Print exec --no-startup-id spectacle -rbo $outputFile
+bindsym Ctrl+Print       exec --no-startup-id spectacle -fbc
+bindsym Shift+Print      exec --no-startup-id spectacle -abc
+bindsym Ctrl+Shift+Print exec --no-startup-id spectacle -rbc
+
+# Audio
+set $kmix qdbus org.kde.kglobalaccel /component/kmix invokeShortcut
+bindsym XF86AudioMute        exec --no-startup-id $kmix "mute"
+bindsym XF86AudioLowerVolume exec --no-startup-id $kmix "decrease_volume"
+bindsym XF86AudioRaiseVolume exec --no-startup-id $kmix "increase_volume"
+bindsym XF86AudioMicMute     exec --no-startup-id $kmix "mic_mute"
+
+# Display
+set $pd qdbus org.kde.kglobalaccel /component/org_kde_powerdevil invokeShortcut
+bindsym XF86MonBrightnessDown exec --no-startup-id $pd "Decrease Screen Brightness"
+bindsym XF86MonBrightnessUp   exec --no-startup-id $pd "Increase Screen Brightness"
+
+# Switch display
+bindsym $mod+p exec --no-startup-id qdbus org.kde.kglobalaccel /component/kded5 \
+	invokeShortcut "display"
+
+# Touchpad
+bindsym XF86TouchpadToggle exec --no-startup-id qdbus org.kde.kglobalaccel \
+	/component/kcm_touchpad invokeShortcut "Toggle Touchpad"
+
+# Keyboard backlight
+bindsym XF86KbdBrightnessDown exec --no-startup-id \
+	$pd "Decrease Keyboard Brightness"
+bindsym XF86KbdBrightnessUp exec --no-startup-id $pd "Increase Keyboard Brightness"
+
+# Airplane mode
+# bindsym XF86RFKill exec --no-startup-id toggle-airplane
+
+# Power
+bindsym $mod+Escape     exec --no-startup-id qdbus org.kde.ksmserver /KSMServer \
+	logout 1 2 -1
+bindsym XF86Sleep       exec --no-startup-id $pd "Sleep"
+bindsym XF86ScreenSaver exec --no-startup-id $pd "Turn Off Screen"
+
+# Media controls
+bindsym $mod+i exec --no-startup-id qdbus org.kde.kglobalaccel /component/lattedock \
+	invokeShortcut "activate widget 87"
+# bindsym $mod+o 		 exec --no-startup-id mpc sendmessage mpdas love && notify-send -a "mpdas" "Liked"
+# bindsym $mod+Shift+o exec --no-startup-id mpc sendmessage mpdas unlove && notify-send -a "mpdas" "Unliked"
+bindsym $mod+j       exec --no-startup-id playerctl previous
+bindsym $mod+k       exec --no-startup-id playerctl play-pause
+bindsym $mod+l       exec --no-startup-id playerctl next
+bindsym $mod+Shift+k exec --no-startup-id playerctl stop
+bindsym $mod+Shift+j exec --no-startup-id playerctl position 5-
+bindsym $mod+Shift+l exec --no-startup-id playerctl position 5+
+
+
+#----------------------------------------------------------------------------------------------------
+# Key for i3-gaps
+#----------------------------------------------------------------------------------------------------
+# Kill focused window
+bindsym $mod+Shift+q kill
+
+# Change focus
+bindsym $mod+Left  focus left
+bindsym $mod+Down  focus down
+bindsym $mod+Up    focus up
+bindsym $mod+Right focus right
+
+# Move focused window
+bindsym $mod+Shift+Left  move left
+bindsym $mod+Shift+Down  move down
+bindsym $mod+Shift+Up    move up
+bindsym $mod+Shift+Right move right
+
+# Enter fullscreen mode for the focused container
+bindsym $mod+f fullscreen toggle
+
+# Split in horizontal orientation
+bindsym $mod+h split h
+
+# Split in vertical orientation
+bindsym $mod+v split v
+
+# Change container layout (stacked, tabbed, toggle split)
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+
+# Toggle tiling / floating
+bindsym $mod+Shift+space floating toggle
+
+# Make focused window sticky
+bindsym $mod+u sticky toggle
+
+# Change focus between tiling / floating windows
+bindsym $mod+space focus mode_toggle
+
+# Focus the parent container
+bindsym $mod+a focus parent
+
+# Focus the child container
+bindsym $mod+z focus child
+
+# Switch to workspace
+bindsym $mod+1 workspace 1
+bindsym $mod+2 workspace 2
+bindsym $mod+3 workspace 3
+bindsym $mod+4 workspace 4
+bindsym $mod+5 workspace 5
+bindsym $mod+6 workspace 6
+bindsym $mod+7 workspace 7
+bindsym $mod+8 workspace 8
+bindsym $mod+9 workspace 9
+bindsym $mod+0 workspace 10
+
+# Move focused container to workspace
+bindsym $mod+Shift+1 move container to workspace 1
+bindsym $mod+Shift+2 move container to workspace 2
+bindsym $mod+Shift+3 move container to workspace 3
+bindsym $mod+Shift+4 move container to workspace 4
+bindsym $mod+Shift+5 move container to workspace 5
+bindsym $mod+Shift+6 move container to workspace 6
+bindsym $mod+Shift+7 move container to workspace 7
+bindsym $mod+Shift+8 move container to workspace 8
+bindsym $mod+Shift+9 move container to workspace 9
+bindsym $mod+Shift+0 move container to workspace 10
+
+# Reload the configuration file
+bindsym $mod+Shift+c reload
+
+# Restart i3 in-place
+bindsym $mod+Shift+r restart
+
+# Resize window
+mode "resize" {
+	bindsym Left  resize shrink width 10 px or 5 ppt
+	bindsym Down  resize grow height 10 px or 5 ppt
+	bindsym Up    resize shrink height 10 px or 5 ppt
+	bindsym Right resize grow width 10 px or 5 ppt
+
+	bindsym Return mode "default"
+	bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+
+#----------------------------------------------------------------------------------------------------
+# i3-gaps stuff
+#----------------------------------------------------------------------------------------------------
+# Necessary for i3-gaps to work properly (pixel can be any value)
+for_window [class="^.*"] border none
+
+# Smart Gaps
+smart_gaps on
+
+# Smart Borders
+smart_borders on
+
+# Set inner/outer gaps
+gaps inner 16
+gaps outer 0
+
+# Gaps mode
+set $modeGaps Gaps: (o) outer, (i) inner
+set $modeGapsOuter Outer Gaps: +|-|0 (local), Shift + +|-|0 (global)
+set $modeGapsInner Inner Gaps: +|-|0 (local), Shift + +|-|0 (global)
+bindsym $mod+Shift+g mode "$modeGaps"
+
+mode "$modeGaps" {
+	bindsym o      mode "$modeGapsOuter"
+	bindsym i      mode "$modeGapsInner"
+	bindsym Return mode "default"
+	bindsym Escape mode "default"
+}
+
+mode "$modeGapsInner" {
+	bindsym plus  gaps inner current plus 5
+	bindsym minus gaps inner current minus 5
+	bindsym 0     gaps inner current set 0
+
+	bindsym Shift+plus  gaps inner all plus 5
+	bindsym Shift+minus gaps inner all minus 5
+	bindsym Shift+0     gaps inner all set 0
+
+	bindsym Return mode "default"
+	bindsym Escape mode "default"
+}
+
+mode "$modeGapsOuter" {
+	bindsym plus  gaps outer current plus 5
+	bindsym minus gaps outer current minus 5
+	bindsym 0     gaps outer current set 0
+
+	bindsym Shift+plus  gaps outer all plus 5
+	bindsym Shift+minus gaps outer all minus 5
+	bindsym Shift+0     gaps outer all set 0
+
+	bindsym Return mode "default"
+	bindsym Escape mode "default"
+}

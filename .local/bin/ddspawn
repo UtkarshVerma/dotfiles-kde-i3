@@ -1,0 +1,19 @@
+#!/bin/bash
+
+[ -z "$1" ] && exit
+
+show() {
+	i3 "[instance=\"dropdown_$script\"] scratchpad show, floating enable, move position center"
+}
+
+if xwininfo -tree -root | grep "dropdown_$script" > /dev/null; then
+	echo "Window detected."
+	show
+else
+	echo "Window not detected... spawning."
+	$@ -name dropdown_$script & sleep 0.5
+	windowID=$(xdotool search -classname "dropdown_$script")
+	xprop -f _NET_WM_STATE 32a -set _NET_WM_STATE _NET_WM_STATE_SKIP_TASKBAR -id $windowID
+	sleep 0.2
+	show
+fi

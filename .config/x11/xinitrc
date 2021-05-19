@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Start Plasma
+export XDG_CURRENT_DESKTOP=KDE
+export DESKTOP_SESSION=kde
+export KDEWM=/usr/bin/i3
+export $(dbus-launch)
+exec /usr/bin/startplasma-x11

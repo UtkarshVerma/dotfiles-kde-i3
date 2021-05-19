@@ -1,0 +1,20 @@
+#!/bin/sh
+#---------------------------------------------------------------
+# Script to display the unread email count.
+# Requires qGmail: https://github.com/UtkarshVerma/qGmail
+#---------------------------------------------------------------
+
+# Exit if no internet.
+wget --spider -q https://example.com || exit 1
+
+# Display the count, if non-zero.
+count1=`qgmail`
+count2=`qgmail -token ~/.config/qgmail/college_token.json`
+output=""
+if [ $count1 -gt 0 ]; then
+	output=" $count1"
+	[ $count2 -gt 0 ] && output="$output   $count2"
+else
+	[ $count2 -gt 0 ] && output=" $count2"
+fi
+echo "$output  "
